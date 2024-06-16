@@ -57,30 +57,6 @@ static PyThreadState *gilstate = NULL;
 DLL_EXPORT GDExtensionInterfaceGetProcAddress pythonscript_gdextension_get_proc_address = NULL;
 DLL_EXPORT GDExtensionClassLibraryPtr pythonscript_gdextension_library = NULL;
 
-
-// GDExtension interface uses GDStringName everywhere a name should be passed,
-// however it is very cumbersome to create it !
-
-static GDExtensionPtrConstructor gdstring_constructor = NULL;
-static GDExtensionPtrDestructor gdstring_destructor = NULL;
-static GDExtensionPtrConstructor gdstringname_from_gdstring_constructor = NULL;
-static GDExtensionPtrDestructor gdstringname_destructor = NULL;
-static GDExtensionInterfaceStringNewWithUtf8Chars gdstring_new_with_utf8_chars = NULL;
-
-DLL_EXPORT void pythonscript_gdstringname_new(GDExtensionStringNamePtr ptr, const char *cstr) {
-    // Method name must be passed as a StringName object... which itself has
-    // to be built from a String object :(
-    char as_gdstring[GD_STRING_MAX_SIZE];
-    const GDExtensionConstTypePtr args[1] = {&as_gdstring};
-    gdstring_new_with_utf8_chars(&as_gdstring, cstr);
-    gdstringname_from_gdstring_constructor(ptr, args);
-    gdstring_destructor(&as_gdstring);
-}
-
-DLL_EXPORT void pythonscript_gdstringname_delete(GDExtensionStringNamePtr ptr) {
-    gdstringname_destructor(ptr);
-}
-
 #define GD_PRINT_ERROR(msg) { \
     { \
         GDExtensionInterfacePrintError fn = (GDExtensionInterfacePrintError)(void*)pythonscript_gdextension_get_proc_address("print_error"); \
@@ -110,6 +86,35 @@ static void _initialize_python() {
         goto error;
     }
 
+    // Load GDString & GDStringName contructors/destructors (needed above)
+
+    GDExtensionInterfaceVariantGetPtrConstructor variant_get_ptr_constructor = (GDExtensionInterfaceVariantGetPtrConstructor)(void*)pythonscript_gdextension_get_proc_address("variant_get_ptr_constructor");
+    GDExtensionInterfaceVariantGetPtrDestructor variant_get_ptr_destructor = (GDExtensionInterfaceVariantGetPtrDestructor)(void*)pythonscript_gdextension_get_proc_address("variant_get_ptr_destructor");
+
+    GDExtensionPtrConstructor gd_string_constructor = variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING, 0);
+    if (gd_string_constructor == NULL) {
+        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `String` constructor)");
+        goto error;
+    }
+
+    GDExtensionPtrDestructor gd_string_destructor = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
+    if (gd_string_destructor == NULL) {
+        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `String` destructor)");
+        goto error;
+    }
+
+    GDExtensionPtrDestructor gd_string_name_destructor = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
+    if (gd_string_name_destructor == NULL) {
+        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `StringName` destructor)");
+        goto error;
+    }
+
+    GDExtensionInterfaceStringNameNewWithUtf8Chars gd_string_name_new_with_utf8_chars_with_utf8_chars = (GDExtensionInterfaceStringNameNewWithUtf8Chars)pythonscript_gdextension_get_proc_address("string_name_new_with_utf8_chars");
+    if (gd_string_name_new_with_utf8_chars_with_utf8_chars == NULL) {
+        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `string_name_new_with_utf8_chars`)");
+        goto error;
+    }
+
     // Initialize CPython interpreter
 
     PyConfig config;
@@ -119,18 +124,18 @@ static void _initialize_python() {
     // Set PYTHONHOME from .so path
     {
         // 0) Retrieve Godot methods
-        char method_name_as_gdstringname[GD_STRING_NAME_MAX_SIZE];
-        pythonscript_gdstringname_new(&method_name_as_gdstringname, "get_base_dir");
+        char method_name_as_gd_string_name[GD_STRING_NAME_MAX_SIZE];
+        gd_string_name_new_with_utf8_chars_with_utf8_chars(&method_name_as_gd_string_name, "get_base_dir");
         GDExtensionPtrBuiltInMethod gdstring_get_base_dir;
         {
             GDExtensionInterfaceVariantGetPtrBuiltinMethod fn = (GDExtensionInterfaceVariantGetPtrBuiltinMethod)(void*)pythonscript_gdextension_get_proc_address("variant_get_ptr_builtin_method");
             gdstring_get_base_dir = fn(
                 GDEXTENSION_VARIANT_TYPE_STRING,
-                &method_name_as_gdstringname,
+                &method_name_as_gd_string_name,
                 3942272618
             );
         }
-        pythonscript_gdstringname_delete(&method_name_as_gdstringname);
+        gd_string_name_destructor(&method_name_as_gd_string_name);
         if (gdstring_get_base_dir == NULL) {
             GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `String.get_base_dir` method)");
             goto error;
@@ -145,9 +150,9 @@ static void _initialize_python() {
 
         // 2) Retrieve base dir from library path
         char gd_basedir_path[GD_STRING_MAX_SIZE];
-        gdstring_constructor(gd_basedir_path, NULL);
+        gd_string_constructor(gd_basedir_path, NULL);
         gdstring_get_base_dir(gd_library_path, NULL, gd_basedir_path, 0);
-        gdstring_destructor(gd_library_path);
+        gd_string_destructor(gd_library_path);
 
         // 3) Convert base dir into regular c string
         GDExtensionInt basedir_path_size;
@@ -174,7 +179,7 @@ static void _initialize_python() {
             fn(gd_basedir_path, basedir_path, basedir_path_size);
         }
         basedir_path[basedir_path_size] = '\0';
-        gdstring_destructor(gd_basedir_path);
+        gd_string_destructor(gd_basedir_path);
 
 
         // 4) Configure pythonhome with base dir
@@ -367,41 +372,6 @@ DLL_EXPORT GDExtensionBool pythonscript_init(
             godot_version.string
         );
         GD_PRINT_ERROR(buff);
-        goto error;
-    }
-
-    // Load GDString/GDStringName contructor/destructor needed for pythonscript_gdstringname_new/delete helpers
-
-    GDExtensionInterfaceVariantGetPtrConstructor variant_get_ptr_constructor = (GDExtensionInterfaceVariantGetPtrConstructor)(void*)p_get_proc_address("variant_get_ptr_constructor");
-    GDExtensionInterfaceVariantGetPtrDestructor variant_get_ptr_destructor = (GDExtensionInterfaceVariantGetPtrDestructor)(void*)p_get_proc_address("variant_get_ptr_destructor");
-
-    gdstring_constructor = variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING, 0);
-    if (gdstring_constructor == NULL) {
-        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `String` constructor)");
-        goto error;
-    }
-
-    gdstring_destructor = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING);
-    if (gdstring_destructor == NULL) {
-        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `String` destructor)");
-        goto error;
-    }
-
-    gdstringname_from_gdstring_constructor = variant_get_ptr_constructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME, 2);
-    if (gdstringname_from_gdstring_constructor == NULL) {
-        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `StringName` constructor)");
-        goto error;
-    }
-
-    gdstringname_destructor = variant_get_ptr_destructor(GDEXTENSION_VARIANT_TYPE_STRING_NAME);
-    if (gdstringname_destructor == NULL) {
-        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `StringName` destructor)");
-        goto error;
-    }
-
-    gdstring_new_with_utf8_chars = (GDExtensionInterfaceStringNewWithUtf8Chars)p_get_proc_address("string_new_with_utf8_chars");
-    if (gdstring_new_with_utf8_chars == NULL) {
-        GD_PRINT_ERROR("Pythonscript: Initialization error (cannot retrieve `string_new_with_utf8_chars` destructor)");
         goto error;
     }
 

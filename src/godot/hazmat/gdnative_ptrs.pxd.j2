@@ -72,9 +72,9 @@ cdef struct LoadedGDExtensionInterface:
     void (*string_new_with_wide_chars)(GDExtensionUninitializedStringPtr r_dest, const wchar_t *p_contents)
     void (*string_new_with_latin1_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const char *p_contents, GDExtensionInt p_size)
     void (*string_new_with_utf8_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const char *p_contents, GDExtensionInt p_size)
-    void (*string_new_with_utf16_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const char16_t *p_contents, GDExtensionInt p_size)
-    void (*string_new_with_utf32_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const char32_t *p_contents, GDExtensionInt p_size)
-    void (*string_new_with_wide_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const wchar_t *p_contents, GDExtensionInt p_size)
+    void (*string_new_with_utf16_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const char16_t *p_contents, GDExtensionInt p_char_count)
+    void (*string_new_with_utf32_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const char32_t *p_contents, GDExtensionInt p_char_count)
+    void (*string_new_with_wide_chars_and_len)(GDExtensionUninitializedStringPtr r_dest, const wchar_t *p_contents, GDExtensionInt p_char_count)
     GDExtensionInt (*string_to_latin1_chars)(GDExtensionConstStringPtr p_self, char *r_text, GDExtensionInt p_max_write_length)
     GDExtensionInt (*string_to_utf8_chars)(GDExtensionConstStringPtr p_self, char *r_text, GDExtensionInt p_max_write_length)
     GDExtensionInt (*string_to_utf16_chars)(GDExtensionConstStringPtr p_self, char16_t *r_text, GDExtensionInt p_max_write_length)
@@ -87,6 +87,10 @@ cdef struct LoadedGDExtensionInterface:
     void (*string_operator_plus_eq_cstr)(GDExtensionStringPtr p_self, const char *p_b)
     void (*string_operator_plus_eq_wcstr)(GDExtensionStringPtr p_self, const wchar_t *p_b)
     void (*string_operator_plus_eq_c32str)(GDExtensionStringPtr p_self, const char32_t *p_b)
+    GDExtensionInt (*string_resize)(GDExtensionStringPtr p_self, GDExtensionInt p_resize)
+    void (*string_name_new_with_latin1_chars)(GDExtensionUninitializedStringNamePtr r_dest, const char *p_contents, GDExtensionBool p_is_static)
+    void (*string_name_new_with_utf8_chars)(GDExtensionUninitializedStringNamePtr r_dest, const char *p_contents)
+    void (*string_name_new_with_utf8_chars_and_len)(GDExtensionUninitializedStringNamePtr r_dest, const char *p_contents, GDExtensionInt p_size)
     GDExtensionInt (*xml_parser_open_buffer)(GDExtensionObjectPtr p_instance, const uint8_t *p_buffer, size_t p_size)
     void (*file_access_store_buffer)(GDExtensionObjectPtr p_instance, const uint8_t *p_src, uint64_t p_length)
     uint64_t (*file_access_get_buffer)(GDExtensionConstObjectPtr p_instance, uint8_t *p_dst, uint64_t p_length)
@@ -122,6 +126,7 @@ cdef struct LoadedGDExtensionInterface:
     GDExtensionObjectPtr (*global_get_singleton)(GDExtensionConstStringNamePtr p_name)
     void *(*object_get_instance_binding)(GDExtensionObjectPtr p_o, void *p_token, const GDExtensionInstanceBindingCallbacks *p_callbacks)
     void (*object_set_instance_binding)(GDExtensionObjectPtr p_o, void *p_token, void *p_binding, const GDExtensionInstanceBindingCallbacks *p_callbacks)
+    void (*object_free_instance_binding)(GDExtensionObjectPtr p_o, void *p_token)
     void (*object_set_instance)(GDExtensionObjectPtr p_o, GDExtensionConstStringNamePtr p_classname, GDExtensionClassInstancePtr p_instance)
     GDExtensionBool (*object_get_class_name)(GDExtensionConstObjectPtr p_object, GDExtensionClassLibraryPtr p_library, GDExtensionUninitializedStringNamePtr r_class_name)
     GDExtensionObjectPtr (*object_cast_to)(GDExtensionConstObjectPtr p_object, void *p_class_tag)
@@ -130,13 +135,21 @@ cdef struct LoadedGDExtensionInterface:
     GDExtensionObjectPtr (*ref_get_object)(GDExtensionConstRefPtr p_ref)
     void (*ref_set_object)(GDExtensionRefPtr p_ref, GDExtensionObjectPtr p_object)
     GDExtensionScriptInstancePtr (*script_instance_create)(const GDExtensionScriptInstanceInfo *p_info, GDExtensionScriptInstanceDataPtr p_instance_data)
+    GDExtensionScriptInstancePtr (*script_instance_create2)(const GDExtensionScriptInstanceInfo2 *p_info, GDExtensionScriptInstanceDataPtr p_instance_data)
+    GDExtensionScriptInstancePtr (*place_holder_script_instance_create)(GDExtensionObjectPtr p_language, GDExtensionObjectPtr p_script, GDExtensionObjectPtr p_owner)
+    void (*place_holder_script_instance_update)(GDExtensionScriptInstancePtr p_placeholder, GDExtensionConstTypePtr p_properties, GDExtensionConstTypePtr p_values)
+    GDExtensionScriptInstanceDataPtr (*object_get_script_instance)(GDExtensionConstObjectPtr p_object, GDExtensionObjectPtr p_language)
+    void (*callable_custom_create)(GDExtensionUninitializedTypePtr r_callable, GDExtensionCallableCustomInfo *p_callable_custom_info)
+    void *(*callable_custom_get_user_data)(GDExtensionConstTypePtr p_callable, void *p_token)
     GDExtensionObjectPtr (*classdb_construct_object)(GDExtensionConstStringNamePtr p_classname)
     GDExtensionMethodBindPtr (*classdb_get_method_bind)(GDExtensionConstStringNamePtr p_classname, GDExtensionConstStringNamePtr p_methodname, GDExtensionInt p_hash)
     void *(*classdb_get_class_tag)(GDExtensionConstStringNamePtr p_classname)
     void (*classdb_register_extension_class)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, GDExtensionConstStringNamePtr p_parent_class_name, const GDExtensionClassCreationInfo *p_extension_funcs)
+    void (*classdb_register_extension_class2)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, GDExtensionConstStringNamePtr p_parent_class_name, const GDExtensionClassCreationInfo2 *p_extension_funcs)
     void (*classdb_register_extension_class_method)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, const GDExtensionClassMethodInfo *p_method_info)
     void (*classdb_register_extension_class_integer_constant)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, GDExtensionConstStringNamePtr p_enum_name, GDExtensionConstStringNamePtr p_constant_name, GDExtensionInt p_constant_value, GDExtensionBool p_is_bitfield)
     void (*classdb_register_extension_class_property)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, const GDExtensionPropertyInfo *p_info, GDExtensionConstStringNamePtr p_setter, GDExtensionConstStringNamePtr p_getter)
+    void (*classdb_register_extension_class_property_indexed)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, const GDExtensionPropertyInfo *p_info, GDExtensionConstStringNamePtr p_setter, GDExtensionConstStringNamePtr p_getter, GDExtensionInt p_index)
     void (*classdb_register_extension_class_property_group)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, GDExtensionConstStringPtr p_group_name, GDExtensionConstStringPtr p_prefix)
     void (*classdb_register_extension_class_property_subgroup)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, GDExtensionConstStringPtr p_subgroup_name, GDExtensionConstStringPtr p_prefix)
     void (*classdb_register_extension_class_signal)(GDExtensionClassLibraryPtr p_library, GDExtensionConstStringNamePtr p_class_name, GDExtensionConstStringNamePtr p_signal_name, const GDExtensionPropertyInfo *p_argument_info, GDExtensionInt p_argument_count)
@@ -163,13 +176,9 @@ cdef extern from * nogil:
     #endif
     DLL_IMPORT extern GDExtensionInterfaceGetProcAddress pythonscript_gdextension_get_proc_address;
     DLL_IMPORT extern GDExtensionClassLibraryPtr pythonscript_gdextension_library;
-    DLL_IMPORT extern void pythonscript_gdstringname_new(GDExtensionStringNamePtr ptr, const char *cstr);
-    DLL_IMPORT extern void pythonscript_gdstringname_delete(GDExtensionStringNamePtr ptr);
     """
-    cdef const GDExtensionInterfaceGetProcAddress pythonscript_gdextension_get_proc_address;
+    cdef const GDExtensionInterfaceGetProcAddress pythonscript_gdextension_get_proc_address
     cdef const GDExtensionClassLibraryPtr pythonscript_gdextension_library
-    cdef void pythonscript_gdstringname_new(GDExtensionStringNamePtr ptr, const char *cstr)
-    cdef void pythonscript_gdstringname_delete(GDExtensionStringNamePtr ptr)
 
 
 ##############################################################################

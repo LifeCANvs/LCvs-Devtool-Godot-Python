@@ -96,6 +96,10 @@ pythonscript_gdextension.string_operator_plus_eq_char = <void (*)(GDExtensionStr
 pythonscript_gdextension.string_operator_plus_eq_cstr = <void (*)(GDExtensionStringPtr, const char *)>pythonscript_gdextension_get_proc_address("string_operator_plus_eq_cstr")
 pythonscript_gdextension.string_operator_plus_eq_wcstr = <void (*)(GDExtensionStringPtr, const wchar_t *)>pythonscript_gdextension_get_proc_address("string_operator_plus_eq_wcstr")
 pythonscript_gdextension.string_operator_plus_eq_c32str = <void (*)(GDExtensionStringPtr, const char32_t *)>pythonscript_gdextension_get_proc_address("string_operator_plus_eq_c32str")
+pythonscript_gdextension.string_resize = <GDExtensionInt (*)(GDExtensionStringPtr, GDExtensionInt)>pythonscript_gdextension_get_proc_address("string_resize")
+pythonscript_gdextension.string_name_new_with_latin1_chars = <void (*)(GDExtensionUninitializedStringNamePtr, const char *, GDExtensionBool)>pythonscript_gdextension_get_proc_address("string_name_new_with_latin1_chars")
+pythonscript_gdextension.string_name_new_with_utf8_chars = <void (*)(GDExtensionUninitializedStringNamePtr, const char *)>pythonscript_gdextension_get_proc_address("string_name_new_with_utf8_chars")
+pythonscript_gdextension.string_name_new_with_utf8_chars_and_len = <void (*)(GDExtensionUninitializedStringNamePtr, const char *, GDExtensionInt)>pythonscript_gdextension_get_proc_address("string_name_new_with_utf8_chars_and_len")
 pythonscript_gdextension.xml_parser_open_buffer = <GDExtensionInt (*)(GDExtensionObjectPtr, const uint8_t *, size_t)>pythonscript_gdextension_get_proc_address("xml_parser_open_buffer")
 pythonscript_gdextension.file_access_store_buffer = <void (*)(GDExtensionObjectPtr, const uint8_t *, uint64_t)>pythonscript_gdextension_get_proc_address("file_access_store_buffer")
 pythonscript_gdextension.file_access_get_buffer = <uint64_t (*)(GDExtensionConstObjectPtr, uint8_t *, uint64_t)>pythonscript_gdextension_get_proc_address("file_access_get_buffer")
@@ -131,6 +135,7 @@ pythonscript_gdextension.object_destroy = <void (*)(GDExtensionObjectPtr)>python
 pythonscript_gdextension.global_get_singleton = <GDExtensionObjectPtr (*)(GDExtensionConstStringNamePtr)>pythonscript_gdextension_get_proc_address("global_get_singleton")
 pythonscript_gdextension.object_get_instance_binding = <void *(*)(GDExtensionObjectPtr, void *, const GDExtensionInstanceBindingCallbacks *)>pythonscript_gdextension_get_proc_address("object_get_instance_binding")
 pythonscript_gdextension.object_set_instance_binding = <void (*)(GDExtensionObjectPtr, void *, void *, const GDExtensionInstanceBindingCallbacks *)>pythonscript_gdextension_get_proc_address("object_set_instance_binding")
+pythonscript_gdextension.object_free_instance_binding = <void (*)(GDExtensionObjectPtr, void *)>pythonscript_gdextension_get_proc_address("object_free_instance_binding")
 pythonscript_gdextension.object_set_instance = <void (*)(GDExtensionObjectPtr, GDExtensionConstStringNamePtr, GDExtensionClassInstancePtr)>pythonscript_gdextension_get_proc_address("object_set_instance")
 pythonscript_gdextension.object_get_class_name = <GDExtensionBool (*)(GDExtensionConstObjectPtr, GDExtensionClassLibraryPtr, GDExtensionUninitializedStringNamePtr)>pythonscript_gdextension_get_proc_address("object_get_class_name")
 pythonscript_gdextension.object_cast_to = <GDExtensionObjectPtr (*)(GDExtensionConstObjectPtr, void *)>pythonscript_gdextension_get_proc_address("object_cast_to")
@@ -139,13 +144,21 @@ pythonscript_gdextension.object_get_instance_id = <GDObjectInstanceID (*)(GDExte
 pythonscript_gdextension.ref_get_object = <GDExtensionObjectPtr (*)(GDExtensionConstRefPtr)>pythonscript_gdextension_get_proc_address("ref_get_object")
 pythonscript_gdextension.ref_set_object = <void (*)(GDExtensionRefPtr, GDExtensionObjectPtr)>pythonscript_gdextension_get_proc_address("ref_set_object")
 pythonscript_gdextension.script_instance_create = <GDExtensionScriptInstancePtr (*)(const GDExtensionScriptInstanceInfo *, GDExtensionScriptInstanceDataPtr)>pythonscript_gdextension_get_proc_address("script_instance_create")
+pythonscript_gdextension.script_instance_create2 = <GDExtensionScriptInstancePtr (*)(const GDExtensionScriptInstanceInfo2 *, GDExtensionScriptInstanceDataPtr)>pythonscript_gdextension_get_proc_address("script_instance_create2")
+pythonscript_gdextension.place_holder_script_instance_create = <GDExtensionScriptInstancePtr (*)(GDExtensionObjectPtr, GDExtensionObjectPtr, GDExtensionObjectPtr)>pythonscript_gdextension_get_proc_address("place_holder_script_instance_create")
+pythonscript_gdextension.place_holder_script_instance_update = <void (*)(GDExtensionScriptInstancePtr, GDExtensionConstTypePtr, GDExtensionConstTypePtr)>pythonscript_gdextension_get_proc_address("place_holder_script_instance_update")
+pythonscript_gdextension.object_get_script_instance = <GDExtensionScriptInstanceDataPtr (*)(GDExtensionConstObjectPtr, GDExtensionObjectPtr)>pythonscript_gdextension_get_proc_address("object_get_script_instance")
+pythonscript_gdextension.callable_custom_create = <void (*)(GDExtensionUninitializedTypePtr, GDExtensionCallableCustomInfo *)>pythonscript_gdextension_get_proc_address("callable_custom_create")
+pythonscript_gdextension.callable_custom_get_user_data = <void *(*)(GDExtensionConstTypePtr, void *)>pythonscript_gdextension_get_proc_address("callable_custom_get_user_data")
 pythonscript_gdextension.classdb_construct_object = <GDExtensionObjectPtr (*)(GDExtensionConstStringNamePtr)>pythonscript_gdextension_get_proc_address("classdb_construct_object")
 pythonscript_gdextension.classdb_get_method_bind = <GDExtensionMethodBindPtr (*)(GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, GDExtensionInt)>pythonscript_gdextension_get_proc_address("classdb_get_method_bind")
 pythonscript_gdextension.classdb_get_class_tag = <void *(*)(GDExtensionConstStringNamePtr)>pythonscript_gdextension_get_proc_address("classdb_get_class_tag")
 pythonscript_gdextension.classdb_register_extension_class = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, const GDExtensionClassCreationInfo *)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class")
+pythonscript_gdextension.classdb_register_extension_class2 = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, const GDExtensionClassCreationInfo2 *)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class2")
 pythonscript_gdextension.classdb_register_extension_class_method = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, const GDExtensionClassMethodInfo *)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_method")
 pythonscript_gdextension.classdb_register_extension_class_integer_constant = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, GDExtensionInt, GDExtensionBool)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_integer_constant")
 pythonscript_gdextension.classdb_register_extension_class_property = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, const GDExtensionPropertyInfo *, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_property")
+pythonscript_gdextension.classdb_register_extension_class_property_indexed = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, const GDExtensionPropertyInfo *, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, GDExtensionInt)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_property_indexed")
 pythonscript_gdextension.classdb_register_extension_class_property_group = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, GDExtensionConstStringPtr, GDExtensionConstStringPtr)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_property_group")
 pythonscript_gdextension.classdb_register_extension_class_property_subgroup = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, GDExtensionConstStringPtr, GDExtensionConstStringPtr)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_property_subgroup")
 pythonscript_gdextension.classdb_register_extension_class_signal = <void (*)(GDExtensionClassLibraryPtr, GDExtensionConstStringNamePtr, GDExtensionConstStringNamePtr, const GDExtensionPropertyInfo *, GDExtensionInt)>pythonscript_gdextension_get_proc_address("classdb_register_extension_class_signal")
@@ -158,6 +171,9 @@ pythonscript_gdextension.editor_remove_plugin = <void (*)(GDExtensionConstString
 ##############################################################################
 # Builtins methods function pointers                                         #
 ##############################################################################
+
+
+# Variant stuff
 
 
 cdef GDExtensionTypeFromVariantConstructorFunc gd_object_from_variant_ptr = \
@@ -180,22 +196,32 @@ cdef GDExtensionTypeFromVariantConstructorFunc gd_float_from_variant_ptr = \
 cdef GDExtensionVariantFromTypeConstructorFunc gd_float_into_variant_ptr = \
     pythonscript_gdextension.get_variant_from_type_constructor(GDEXTENSION_VARIANT_TYPE_FLOAT)
 
-{% for builtin in api.builtins %}
 
-# {{ builtin.original_name }}
-{%   for c in builtin.constructors %}
-cdef GDExtensionPtrConstructor {{ builtin.c_name_prefix }}_constructor_{{ c.index }}_ptr = \
-    pythonscript_gdextension.variant_get_ptr_constructor({{ builtin.variant_type_name }}, {{ c.index }})
-{%   endfor %}
+# Builtins destructors
+# (must be declared first given StringName's destructor is used above)
+
+
+{% for builtin in api.builtins %}
 {%   if not builtin.is_stack_only %}
 cdef GDExtensionPtrDestructor {{ builtin.c_name_prefix }}_destructor_ptr = \
     pythonscript_gdextension.variant_get_ptr_destructor({{ builtin.variant_type_name }})
 {%   endif %}
+{% endfor %}
+{% for builtin in api.builtins %}
+
+
+# Builtin {{ builtin.original_name }}
+
+
+{%   for c in builtin.constructors %}
+cdef GDExtensionPtrConstructor {{ builtin.c_name_prefix }}_constructor_{{ c.index }}_ptr = \
+    pythonscript_gdextension.variant_get_ptr_constructor({{ builtin.variant_type_name }}, {{ c.index }})
+{%   endfor %}
 {%   for m in builtin.methods %}
-pythonscript_gdstringname_new(&_gdname, "{{ m.original_name }}")
+pythonscript_gdextension.string_name_new_with_utf8_chars(&_gdname, "{{ m.original_name }}")
 cdef GDExtensionPtrBuiltInMethod {{ builtin.c_name_prefix }}_meth_{{ m.name }}_ptr = \
     pythonscript_gdextension.variant_get_ptr_builtin_method({{ builtin.variant_type_name }}, &_gdname, {{ m.hash }})
-pythonscript_gdstringname_delete(&_gdname)
+gd_string_name_destructor_ptr(&_gdname)
 {%   endfor %}
 {%   if builtin.indexing_return_type is not none and builtin.is_keyed %}
 cdef GDExtensionPtrKeyedSetter {{ builtin.c_name_prefix }}_keyed_setter_ptr = \
@@ -221,12 +247,12 @@ cdef GDExtensionPtrOperatorEvaluator {{ builtin.c_name_prefix }}_op_{{ o.name }}
 {%   endfor %}
 {%   for m in builtin.members %}
 {%     if not m.is_in_struct %}
-pythonscript_gdstringname_new(&_gdname, "{{ m.name }}")
+pythonscript_gdextension.string_name_new_with_utf8_chars(&_gdname, "{{ m.name }}")
 cdef GDExtensionPtrSetter {{ builtin.c_name_prefix }}_get_{{ m.name }}_ptr = \
     pythonscript_gdextension.variant_get_ptr_setter({{ builtin.variant_type_name }}, &_gdname)
 cdef GDExtensionPtrGetter {{ builtin.c_name_prefix }}_set_{{ m.name }}_ptr = \
     pythonscript_gdextension.variant_get_ptr_getter({{ builtin.variant_type_name }}, &_gdname)
-pythonscript_gdstringname_delete(&_gdname)
+gd_string_name_destructor_ptr(&_gdname)
 {%     endif %}
 {%   endfor %}
 cdef GDExtensionTypeFromVariantConstructorFunc {{ builtin.c_name_prefix }}_from_variant_ptr = \
@@ -243,8 +269,8 @@ cdef GDExtensionVariantFromTypeConstructorFunc {{ builtin.c_name_prefix }}_into_
 
 {%   for utility in api.utility_functions %}
 # {{ utility.original_name }}
-pythonscript_gdstringname_new(&_gdname, "{{ utility.original_name }}")
+pythonscript_gdextension.string_name_new_with_utf8_chars(&_gdname, "{{ utility.original_name }}")
 cdef GDExtensionPtrUtilityFunction gd_utility_{{ utility.original_name }}_ptr = \
     pythonscript_gdextension.variant_get_ptr_utility_function(&_gdname, {{ utility.hash }})
-pythonscript_gdstringname_delete(&_gdname)
+gd_string_name_destructor_ptr(&_gdname)
 {%   endfor %}

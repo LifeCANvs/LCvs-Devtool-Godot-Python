@@ -46,7 +46,7 @@ cdef public void _pythonscript_get_reserved_words(
         "yield",
     ]
     for keyword in keywords:
-        string = gd_string_from_utf8(keyword, keyword.len())
+        string = gd_string_from_utf8_and_len(keyword, keyword.len())
         gd_packed_string_array_append(&arr, &string)
         gd_string_del(&string)
 
@@ -66,7 +66,7 @@ cdef public void _pythonscript_get_recognized_extensions(
         "py",
     ]
     for keyword in keywords:
-        string = gd_string_from_utf8(keyword, keyword.len())
+        string = gd_string_from_utf8_and_len(keyword, keyword.len())
         gd_packed_string_array_append(&arr, &string)
         gd_string_del(&string)
 
@@ -86,7 +86,7 @@ cdef public void _pythonscript_get_string_delimiters(
 	    "\"\"\" \"\"\"",
     ]
     for keyword in keywords:
-        string = gd_string_from_utf8(keyword, keyword.len())
+        string = gd_string_from_utf8_and_len(keyword, keyword.len())
         gd_packed_string_array_append(&arr, &string)
         gd_string_del(&string)
 
@@ -96,7 +96,7 @@ cdef _register_editor_methods():
     pass
 
     # cdef GDExtensionClassMethodInfo info
-    # pythonscript_gdstringname_new(&info.name, "_get_reserved_words")
+    # info.name = gd_string_name_from_utf8("_get_reserved_words")
     # info.method_userdata = NULL
     # info.call_func = NULL
     # # info.ptrcall_func = &_pythonscript_get_reserved_words
@@ -113,9 +113,9 @@ cdef _register_editor_methods():
     #     "PythonScriptLanguageExtension",
     #     &info,
     # )
-    # pythonscript_gdstringname_delete(&info.name)
+    # gd_string_name_del(&info.name)
 
-    # pythonscript_gdstringname_new(&info.name, "_get_recognized_extensions")
+    # info.name = gd_string_name_from_utf8("_get_recognized_extensions")
     # info.method_userdata = NULL
     # info.call_func = NULL
     # # info.ptrcall_func = &_pythonscript_get_recognized_extensions
@@ -132,9 +132,9 @@ cdef _register_editor_methods():
     #     "PythonScriptLanguageExtension",
     #     &info,
     # )
-    # pythonscript_gdstringname_delete(&info.name)
+    # gd_string_name_del(&info.name)
 
-    # pythonscript_gdstringname_new(&info.name, "_get_string_delimiters")
+    # info.name = gd_string_name_from_utf8("_get_string_delimiters")
     # info.method_userdata = NULL
     # info.call_func = NULL
     # # info.ptrcall_func = &_pythonscript_get_string_delimiters
@@ -151,4 +151,4 @@ cdef _register_editor_methods():
     #     "PythonScriptLanguageExtension",
     #     &info,
     # )
-    # pythonscript_gdstringname_delete(&info.name)
+    # gd_string_name_del(&info.name)
