@@ -51,13 +51,7 @@ def __cinit__(self, s=None):
     if s is None:
         self._gd_data = {{ builtin.c_name_prefix }}_new()
     elif isinstance(s, str):
-        gds = gd_string_from_unchecked_pystr(s)
-        try:
-{%   set constructor = builtin.get_constructor_from("String") %}
-            self._gd_data = {{ constructor.c_name }}(&gds)
-            return
-        finally:
-            gd_string_del(&gds)
+        self._gd_data = gd_string_name_from_unchecked_pystr(s)
     else:
         try:
 {%   set constructor = builtin.get_constructor_from("String") %}
